@@ -1,0 +1,26 @@
+name: Snyk Security Gate
+on: 
+  pull_request:
+    branches:
+      PROD
+jobs:
+  oss-security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Check for High Severity OSS Vulnerabilities
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high --fail-on=upgradable
+  iac-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Snyk IaC Test
+        uses: snyk/actions/iac@master
+        env:
+          SNYK_TOKEN: ${{ Secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=medium
