@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-goof
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+      app: node-goof
+  template:
+    metadata:
+      labels:
+        app: node-goof
+    spec:
+      containers:
+      - image: registry.gitlab.com/<<your_gitlab_id>>/node-goof:dev #Edit with your GitLab ID
+        name: node-goof
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3001
+        - containerPort: 9229
+        resources: {}
+        env: 
+          - name: "DOCKER"
+            value: "1"
+      restartPolicy: Always
+    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-goof
+spec:
+  ports:
+  - name: "3001"
+    port: 3001
+    targetPort: 3001
+  - name: "9229"
+    port: 9229
+    targetPort: 9229
+  selector:
+    app: node-goof
+  type: LoadBalancer
