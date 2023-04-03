@@ -49,15 +49,3 @@ jobs:
           push: true
           load: true
           tags: develop
-      - name: Snyk Container Test
-        continue-on-error: true
-        uses: snyk/actions/docker@master
-        env:
-          SNYK_TOKEN: ${{ Secrets.SNYK_TOKEN }}
-        with:
-          image: goof:develop
-          args: --file=Dockerfile
-      - name: Upload Container Scan results to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: snyk.sarif
