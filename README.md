@@ -1,5 +1,5 @@
 # Goof - Snyk's vulnerable demo app
-[![Known Vulnerabilities](https://snyk.io/test/github/snyk/goof/badge.svg?style=flat-square)](https://snyk.io/test/github/snyk/goof)
+[![Known Vulnerabilities](https://snyk.io/test/github/snyk/goof/badge.svg?style=flat-square)](https://snyk.io/test/github/tomgonzo/node-goof)
 
 A vulnerable Node.js demo application, based on the [Dreamers Lab tutorial](http://dreamerslab.com/blog/en/write-a-todo-list-with-express-and-mongodb/).
 
@@ -8,7 +8,6 @@ A vulnerable Node.js demo application, based on the [Dreamers Lab tutorial](http
 This vulnerable app includes the following capabilities to experiment with:
 * [Exploitable packages](#exploiting-the-vulnerabilities) with known vulnerabilities
 * [Docker Image Scanning](#docker-image-scanning) for base images with known vulnerabilities in system libraries
-* [Runtime alerts](#runtime-alerts) for detecting an invocation of vulnerable functions in open source dependencies
 
 ## Running
 ```bash
@@ -27,20 +26,6 @@ You can also run the MongoDB server individually via Docker, such as:
 ```sh
 docker run --rm -p 27017:27017 mongo:3
 ```
-
-## Running with docker-compose
-```bash
-docker-compose up --build
-docker-compose down
-```
-
-### Heroku usage
-Goof requires attaching a MongoLab service to be deployed as a Heroku app. 
-That sets up the MONGOLAB_URI env var so everything after should just work. 
-
-### CloudFoundry usage
-Goof requires attaching a MongoLab service and naming it "goof-mongo" to be deployed on CloudFoundry. 
-The code explicitly looks for credentials to that service. 
 
 ### Cleanup
 To bulk delete the current list of TODO items from the DB run:
