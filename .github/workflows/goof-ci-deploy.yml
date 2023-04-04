@@ -37,4 +37,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: deploy
+          tags: ghcr.io/tomgonzo/node-goof:deploy
