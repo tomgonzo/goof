@@ -15,7 +15,7 @@ spec:
         app: node-goof
     spec:
       containers:
-      - image: registry.gitlab.com/<<your_gitlab_id>>/node-goof:dev #Edit with your GitLab ID
+      - image: ghcr.io/$gitHubId/node-goof:dev #Edit with your GitHub ID
         name: node-goof
         imagePullPolicy: Always
         ports:
