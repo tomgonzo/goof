@@ -1,31 +1,25 @@
 # Goof - Snyk's vulnerable demo app
-[![Known Vulnerabilities](https://snyk.io/test/github/snyk/goof/badge.svg?style=flat-square)](https://snyk.io/test/github/tomgonzo/node-goof)
-
-A vulnerable Node.js demo application, based on the [Dreamers Lab tutorial](http://dreamerslab.com/blog/en/write-a-todo-list-with-express-and-mongodb/).
+Snyk's vulnerable Node.js demo application, based on the [Dreamers Lab tutorial](http://dreamerslab.com/blog/en/write-a-todo-list-with-express-and-mongodb/).
 
 ## Features
+This vulnerable app includes Vulnerable Code and Exploitable Packages to experiment with.
 
-This vulnerable app includes the following capabilities to experiment with:
-* [Exploitable packages](#exploiting-the-vulnerabilities) with known vulnerabilities
-* [Docker Image Scanning](#docker-image-scanning) for base images with known vulnerabilities in system libraries
-
-## Running
-```bash
-mongod &
-
-git clone https://github.com/snyk-labs/nodejs-goof
-npm install
-npm start
-```
-This will run Goof locally, using a local mongo on the default port and listening on port 3001 (http://localhost:3001)
+## Running Locally
+Goof needs a MongoDB instance to run. You can run one locally using Docker. 
 
 Note: You *have* to use an old version of MongoDB version due to some of these old libraries' database server APIs. MongoDB 3 is known to work ok.
 
-You can also run the MongoDB server individually via Docker, such as:
-
-```sh
-docker run --rm -p 27017:27017 mongo:3
+```bash
+echo "Start detached mongo with container port 27017 mapped to host port 27017"
+docker run -d -p 27017:27017 mongo:3
 ```
+
+```bash
+git clone https://gitlab.com/tomas-snyk/nodejs-goof
+npm install
+npm start
+```
+This will run Goof locally, listening on port 3001 (http://localhost:3001)
 
 ### Cleanup
 To bulk delete the current list of TODO items from the DB run:
@@ -33,17 +27,57 @@ To bulk delete the current list of TODO items from the DB run:
 npm run cleanup
 ```
 
+## Scanning Goof for Vulnerabilities
+You can use Snyk to find vulnerabilities in the Goof application. First, authenticate Snyk:
+
+```bash
+snyk auth
+```
+
+### Scanning for Vulnerable Open Source Libraries
+After installing dependencies, you can use the Snyk CLI to test for Vulnerable Open Source Libraries.
+
+```bash
+npm install --package-lock
+snyk test
+```
+
+You can upload these results to the Snyk UI to be notified in case of newly disclosed vulnerabilities.
+
+```bash
+snyk monitor
+```
+
+### Scanning for Base Image Vulnerabilities
+Goof's `Dockerfile` makes use of a base image that is known to have system libraries with vulnerabilities.
+
+To scan the image for vulnerabilities, first build the image, then run Snyk Container:
+```bash
+docker build -t goof:latest .
+snyk container test goof:latest --file=Dockerfile
+```
+
+You can upload these results to Snyk to receive alerts for new vulnerabilities affecting your base image.
+```bash
+snyk container monitor goof:latest
+```
+
+### Scanning for Code Vulnerabilities
+To find vulnerabilities in Goof's code, use Snyk Code SAST.
+
+```bash
+snyk code test
+```
+
 ## Exploiting the vulnerabilities
 
-This app uses npm dependencies holding known vulnerabilities,
-as well as insecure code that introduces code-level vulnerabilities.
+This app uses npm dependencies holding known vulnerabilities, as well as insecure code that introduces code-level vulnerabilities.
 
 The `exploits/` directory includes a series of steps to demonstrate each one.
 
 ### Vulnerabilities in open source dependencies
 
 Here are the exploitable vulnerable packages:
-- [Mongoose - Buffer Memory Exposure](https://snyk.io/vuln/npm:mongoose:20160116) - requires a version <= Node.js 8. For the exploit demo purposes, one can update the Dockerfile `node` base image to use `FROM node:6-stretch`.
 - [st - Directory Traversal](https://snyk.io/vuln/npm:st:20140206)
 - [ms - ReDoS](https://snyk.io/vuln/npm:ms:20151024)
 - [marked - XSS](https://snyk.io/vuln/npm:marked:20150520)
@@ -158,42 +192,3 @@ However, that still maintains the secret information inside another file, and Sn
 Another case we can discuss here in session management, is that the cookie setting is initialized with `secure: true` which means it will only be transmitted over HTTPS connections. However, there's no `httpOnly` flag set to true, which means that the default false value of it makes the cookie accessible via JavaScript. Snyk Code highlights this potential security misconfiguration so we can fix it. We can note that Snyk Code shows this as a quality information, and not as a security error.
 
 Snyk Code will also find hardcoded secrets in source code that isn't part of the application logic, such as `tests/` or `examples/` folders. We have a case of that in this application with the `tests/authentication.component.spec.js` file. In the finding, Snyk Code will tag it as `InTest`, `Tests`, or `Mock`, which help us easily triage it and indeed ignore this finding as it isn't actually a case of information exposure.
-
-## Docker Image Scanning
-
-The `Dockerfile` makes use of a base image (`node:6-stretch`) that is known to have system libraries with vulnerabilities.
-
-To scan the image for vulnerabilities, run:
-```bash
-snyk test --docker node:6-stretch --file=Dockerfile
-```
-
-To monitor this image and receive alerts with Snyk:
-```bash
-snyk monitor --docker node:6-stretch
-```
-
-## Runtime Alerts
-
-Snyk provides the ability to monitor application runtime behavior and detect an invocation of a function is known to be vulnerable and used within open source dependencies that the application makes use of.
-
-The agent is installed and initialized in [app.js](./app.js#L5).
-
-For the agent to report back to your snyk account on the vulnerabilities it detected it needs to know which project on Snyk to associate with the monitoring. Due to that, we need to provide it with the project id through an environment variable `SNYK_PROJECT_ID`
-
-To run the Node.js app with runtime monitoring:
-```bash
-SNYK_PROJECT_ID=<PROJECT_ID> npm start
-```
-
-** The app will continue to work normally even if it's not provided a project id
-
-## Fixing the issues
-To find these flaws in this application (and in your own apps), run:
-```
-npm install -g snyk
-snyk wizard
-```
-
-In this application, the default `snyk wizard` answers will fix all the issues.
-When the wizard is done, restart the application and run the exploits again to confirm they are fixed.
