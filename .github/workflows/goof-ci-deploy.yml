@@ -37,4 +37,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/tomgonzo/node-goof:deploy
+          tags: ghcr.io/${{ github.actor }}/${{ github.repository }}:deploy
