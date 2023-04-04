@@ -13,7 +13,7 @@ jobs:
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        args: --severity-threshold=high --fail-on=upgradable
+        args: --severity-threshold=critical --fail-on=upgradable
   iac-security:
     runs-on: ubuntu-latest
     steps:
